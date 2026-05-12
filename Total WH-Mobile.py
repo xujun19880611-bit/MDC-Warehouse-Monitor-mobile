@@ -46,7 +46,7 @@ LANG_DICT = {
     }
 }
 
-# --- 2. 页面配置与 UI 样式 (已去掉阴影和渐变以提升性能) ---
+# --- 2. 页面配置与 UI 样式 ---
 st.set_page_config(page_title="MDC Mobile", layout="wide")
 
 st.markdown("""
@@ -118,10 +118,13 @@ def load_data():
         for c in ['L','W','H']: df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0)
         df['Vol'] = (df['L'] * df['W'] * df['H']) / 1000000
         
-        m_mask = (~df['Loc'].str.contains('-', na=False)) & (df['Loc'].str.startswith(('A','B','C','D','E'))) & (df['L']>0)
+        # 修改点1：在 mask 筛选中增加 'G' 库的支持
+        m_mask = (~df['Loc'].str.contains('-', na=False)) & (df['Loc'].str.startswith(('A','B','C','D','E','G'))) & (df['L']>0)
         master = df[m_mask].drop_duplicates('Loc')
         
-        l_map, stats = {}, {wh: {'t_v':0.0, 'u_v':0.0, 'total_bins':0, 'used_bins':0} for wh in 'ABCDE'}
+        # 修改点2：初始化统计字典时包含 'G'
+        l_map, stats = {}, {wh: {'t_v':0.0, 'u_v':0.0, 'total_bins':0, 'used_bins':0} for wh in 'ABCDEG'}
+        
         for _, r in master.iterrows():
             wh = r['Loc'][0].upper()
             l_map[r['Loc']] = {'Items':[], 'Status':r['Status'], 'Vol':r['Vol'], 'WH':wh, 'Aisle':r['Loc'][0:3], 'Col':r['Loc'][3:5], 'Lvl':r['Loc'][5:7]}
@@ -155,8 +158,8 @@ if l_map:
     r_all = (u_all/t_all*100) if t_all>0 else 0
     st.markdown(f'<div class="total-card">{L["total_usage"]}: {r_all:.1f}% ({u_all:.1f}/{t_all:.1f} m³)</div>', unsafe_allow_html=True)
 
-    # 库房与货道选择 (关键优化：分货道显示)
-    wh_sel = st.sidebar.selectbox(L["wh_sel"], ['A','B','C','D','E'])
+    # 修改点3：侧边栏库房选择增加 'G'
+    wh_sel = st.sidebar.selectbox(L["wh_sel"], ['A','B','C','D','E','G'])
     aisle_list = sorted(list(set(v['Aisle'] for v in l_map.values() if v['WH']==wh_sel)))
     a_sel = st.sidebar.selectbox(L["aisle_sel"], aisle_list)
     
@@ -179,8 +182,13 @@ if l_map:
     """, unsafe_allow_html=True)
 
     # 渲染单条货道
-    levels = ["50","40","30","20","10","00"] if wh_sel=='A' else ["40","30","20","10","00"]
-    split = 3 if wh_sel=='A' else 2
+    # 修改点4：定义G库的显示层级（这里假设G库和BCDE库一致，如果有特殊层级可在此修改）
+    if wh_sel == 'A':
+        levels = ["50","40","30","20","10","00"]
+        split = 3
+    else:
+        levels = ["40","30","20","10","00"]
+        split = 2
     
     st.markdown(f'<div class="aisle-title">📍 {L["aisle_label"]}: {a_sel}</div>', unsafe_allow_html=True)
     all_cols = sorted(list(set(v['Col'] for v in l_map.values() if v['Aisle']==a_sel)), reverse=True)
