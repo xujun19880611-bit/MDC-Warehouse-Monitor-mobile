@@ -1,56 +1,51 @@
 name: Multi-Repository Data Sync
 
-# 只要这个核心仓库的 main 分支有代码推送（包含最新库存 CSV），就触发此工作流
-于:
+on:
   push:
-    分支:
+    branches:
       - main
     paths:
-      - 'SGF.csv' # 仅当库存文件更新时才触发，避免无效运行
+      - 'SGF.csv'
 
 jobs:
   distribute-data:
     runs-on: ubuntu-latest
     
     steps:
-      # 1. 检出当前核心仓库的代码
       - name: Checkout Core Data Repo
         uses: actions/checkout@v4
 
-      # 2. 将最新库存文件同步到第二个仓库（例如：库位优化小工具仓库）
       - name: Sync to Storage Optimizer Repo
         uses: dmnemec/copy_file_to_another_repo_action@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }} # 你的 GitHub 个人访问令牌
+          API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }}
         with:
           source_file: 'SGF.csv'
-          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor' # 目标仓库1
-          destination_folder: '' # 目标仓库里的存放文件夹
+          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor'
+          destination_folder: ''
           user_email: 'mdc-agent@github.com'
           user_name: 'MDC Core Sync Agent'
           commit_message: 'Automated inventory sync from core data repo'
 
-      # 3. 将最新库存文件同步到第三个仓库（例如：Streamlit 大屏看板仓库）
       - name: Sync to Streamlit Dashboard Repo
         uses: dmnemec/copy_file_to_another_repo_action@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }}
         with:
           source_file: 'SGF.csv'
-          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor-POR' # 目标仓库2
+          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor-POR'
           destination_folder: ''
           user_email: 'mdc-agent@github.com'
           user_name: 'MDC Core Sync Agent'
           commit_message: 'Automated inventory sync from core data repo'
 
-      # 4. 将最新库存文件同步到第四个仓库（例如：手机端查询工具仓库）
       - name: Sync to Mobile Query Repo
         uses: dmnemec/copy_file_to_another_repo_action@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }}
         with:
           source_file: 'SGF.csv'
-          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor-mobile-inventory' # 目标仓库3
+          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor-mobile-inventory'
           destination_folder: ''
           user_email: 'mdc-agent@github.com'
           user_name: 'MDC Core Sync Agent'
