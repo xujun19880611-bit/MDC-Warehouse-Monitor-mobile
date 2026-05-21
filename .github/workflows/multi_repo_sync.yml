@@ -1,9 +1,9 @@
 name: Multi-Repository Data Sync
 
 # 只要这个核心仓库的 main 分支有代码推送（包含最新库存 CSV），就触发此工作流
-on:
+于:
   push:
-    branches:
+    分支:
       - main
     paths:
       - 'SGF.csv' # 仅当库存文件更新时才触发，避免无效运行
@@ -24,8 +24,8 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }} # 你的 GitHub 个人访问令牌
         with:
           source_file: 'SGF.csv'
-          destination_repo: '你的GitHub用户名/storage-optimizer-repo' # 目标仓库1
-          destination_folder: 'data' # 目标仓库里的存放文件夹
+          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor' # 目标仓库1
+          destination_folder: '' # 目标仓库里的存放文件夹
           user_email: 'mdc-agent@github.com'
           user_name: 'MDC Core Sync Agent'
           commit_message: 'Automated inventory sync from core data repo'
@@ -37,8 +37,8 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }}
         with:
           source_file: 'SGF.csv'
-          destination_repo: '你的GitHub用户名/streamlit-dashboard-repo' # 目标仓库2
-          destination_folder: 'data'
+          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor-POR' # 目标仓库2
+          destination_folder: ''
           user_email: 'mdc-agent@github.com'
           user_name: 'MDC Core Sync Agent'
           commit_message: 'Automated inventory sync from core data repo'
@@ -50,8 +50,8 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.MDC_SYNC_TOKEN }}
         with:
           source_file: 'SGF.csv'
-          destination_repo: '你的GitHub用户名/mobile-query-repo' # 目标仓库3
-          destination_folder: 'data'
+          destination_repo: 'xujun19880611-bit/MDC-Warehouse-Monitor-mobile-inventory' # 目标仓库3
+          destination_folder: ''
           user_email: 'mdc-agent@github.com'
           user_name: 'MDC Core Sync Agent'
           commit_message: 'Automated inventory sync from core data repo'
